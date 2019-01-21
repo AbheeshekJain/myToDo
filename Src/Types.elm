@@ -7,7 +7,8 @@ type alias Photo =
     , location : String
     , likeCount : Int
     , commentCount : Int
-    , comments : List Comment}
+    , comments : List Comment
+    }
 
 type alias Comment = 
     { username : String
@@ -28,3 +29,5 @@ exampleComment =
         username = "Person"
         , message = "Good Job!"
     }
+
+type Msg = Nothing
