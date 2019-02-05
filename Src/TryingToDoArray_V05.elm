@@ -32,6 +32,7 @@ init =
   , len2 = 0
   }
 
+{-- 
 -- for pupulating Donelist 
 type alias Getitem = 
     { element : String
@@ -39,12 +40,15 @@ type alias Getitem =
     }
 
 -- no need to initialize 
+--}
+
 
 type Msg
     = GetInput String
     | AddTask
     | RemoveBottom
     | RemoveTop
+    | ClearDone
    
 
 --update : Msg -> showList 
@@ -64,10 +68,8 @@ update msg model =
                 --checkEmpty model
             else
                 { 
-                 model | 
-                     --checkEmpty model.content
-                    --taskList = model.taskList ++ [model.task]
-                   taskAr = push model.task model.taskAr
+                 model |
+                    taskAr = push model.task model.taskAr
                   , task = ""
                   
                 } -- to add new task to the bottom of the List
@@ -76,37 +78,38 @@ update msg model =
             {
                 model |
                     taskAr = removeArTop model.taskAr
-                    
                     -- , doneAr = Array.push model.task model.doneAr-- need to fix this, as this is getting blanked task text and adding to the doneAr
+                    , doneAr = push (getEleTop model.taskAr) model.doneAr
+                    
 
             }
         -- if pressed "Remove Top" item, and add to Done List
         RemoveBottom ->
---            let
---                { theEle = removeEleBottom model.taskAr 
---               }
---           in
                 {
                     model |
-                        --taskAr = removeArrBottom model.taskAr
-                        --, doneAr = Array.push Getitem. model.doneAr
+                        taskAr = removeArrBottom model.taskAr
                         --doneAr = push "test" model.doneAr -- pushes test as element to doneAr - ok 
-                        doneAr = push (removeEleBottom model.taskAr) model.doneAr
+                        , doneAr = push (getEleBottom model.taskAr) model.doneAr
                         -- the LAST ITEM from taskAr need to be pushed to doneAr
                 }
+        ClearDone ->
+            {
+                model| 
+                    doneAr = Array.fromList[] -- resetting the done list
+            }
         
-
 
 -- view get and Array 
 
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [] [text "myToDo Try Array"]
+        [ h1 [] [text "myToDo [Try Array after doing the same with List]"]
         , input [placeholder "Enter your Task here", value model.task, onInput GetInput ] []
         , button [ onClick AddTask ] [ text "Add Task" ]
         , button [onClick RemoveTop] [text "Remove Top"]
         , button [ onClick RemoveBottom ] [ text "Remove Bottom" ]
+        , button [ onClick ClearDone] [text "Reset Done List"]
         , h3 [] [text "TO DO"]
         , viewTaskList model
         , h3 [] [text "DONE"]
@@ -131,42 +134,32 @@ getList : Array a -> List a
 getList taskList = toList (taskList)
 
 
-{--
--- function to get the Array Cut
-removeArBottom : Array a -> Model 
-removeArBottom takeArray =
-    let 
-        lenAr = Array.length takeArray - 1
-    in
-       {
-           getitem | getAr = slice 0 lenAr takeArray
-           --, element = get 0 takeArray
-       }
---}
-
-removeEleBottom : Array String -> String
-removeEleBottom takeArr =
+getEleBottom : Array String -> String
+getEleBottom takeArr =
     let 
         element : String
         element = ""
         lenAr = Array.length takeArr - 1
     in
-       Maybe.withDefault element (get lenAr takeArr) -- worked to get the bottom element selected and added to DoneAr
+       Maybe.withDefault element (get lenAr takeArr) -- worked to get the bottom element tobe  selected and added to DoneAr
+       
+getEleTop : Array String -> String
+getEleTop takeArr =
+    let 
+        element : String
+        element = ""
+    in
+       Maybe.withDefault element (get 0 takeArr) -- worked to get the top element tobe selected and added to DoneAr
        
 
 
-{--
+
 removeArrBottom : Array a -> Array a
 removeArrBottom takeArr = 
     let 
         lenAr = Array.length takeArr - 1
     in
-        {
-            getAr = slice 0 lenAr takeArr
-        }
-
---}
-
+        slice 0 lenAr takeArr
 
 
 removeArTop : Array a -> Array a
@@ -175,4 +168,3 @@ removeArTop takeArray =
         lenAr = Array.length takeArray
     in
         slice 1 lenAr takeArray
-       
